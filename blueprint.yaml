@@ -1,0 +1,360 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
+Description: >
+    Creates a blueprint role for Q Business admin
+    - custom policy for q business admin role
+    - q business web experience Role
+    - q business data source role
+
+Resources:
+    BlueprintRole:
+      Type: 'AWS::IAM::Role'
+      Properties:
+        RoleName: qbusinessblueprint
+        AssumeRolePolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Sid: ''
+              Effect: Allow
+              Principal:
+                AWS:
+                  - !Sub "arn:aws:iam::${AWS::AccountId}:root"
+              Action: 'sts:AssumeRole'
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/AmazonBedrockFullAccess
+          - arn:aws:iam::aws:policy/SecretsManagerReadWrite
+          - arn:aws:iam::aws:policy/AWSCloudFormationFullAccess
+          - arn:aws:iam::aws:policy/AWSLambda_FullAccess
+          - arn:aws:iam::aws:policy/CloudWatchLogsFullAccess
+        Policies:
+          - PolicyName: BluePrintCustomPolicy
+            PolicyDocument:
+              Version: 2012-10-17
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - iam:GetAccountSummary
+                    - iam:GetServiceLastAccessedDetails
+                    - iam:ListAccountAliases
+                    - iam:ListPolicies
+                    - iam:ListRoles
+                    - iam:ListUsers
+                    - iam:GetRole
+                    - iam:GetPolicy
+                    - iam:GetPolicyVersion
+                    - iam:PassRole
+                    - iam:ListAttachedRolePolicies
+                    - iam:ListInstanceProfilesForRole
+                    - iam:ListRolePolicies
+                    - iam:GetUser
+                    - iam:ListUserPolicies
+                    - iam:ListUserTags
+                    - iam:ListGroupsForUser
+                  Resource: 
+                    - !Sub "arn:aws:iam::${AWS::AccountId}:role/qbusiness*"
+                    - !Sub "arn:aws:iam::${AWS::AccountId}:role/aws-service-role/qbusiness.amazonaws.com/AWSServiceRoleForQBusiness"
+                - Effect: Allow
+                  Action: 
+                    - organizations:DescribeOrganization
+                    - organizations:ListAWSServiceAccessForOrganization
+                    - organizations:ListDelegatedAdministrators
+                    - resource-explorer-2:ListIndexes
+                    - cloudtrail:DescribeTrails
+                    - cloudtrail:ListEventDataStores
+                    - cloudtrail:ListTrails
+                    - cloudtrail:LookupEvents
+                    - cloudtrail:CreateTrail
+                    - config:DescribeConfigurationRecorderStatus
+                    - config:DescribeConfigurationRecorders
+                    - qbusiness:*
+                    - qapps:*
+                    - user-subscriptions:*
+                    - sso:*
+                    - sso-directory:*
+                    - identitystore:*
+                    - identitystore-auth:*
+                    - kms:*
+                    - notifications:*
+                    - servicecatalog:*
+                    - signin:*
+                    - cloudshell:*
+                    - s3:ListAllMyBuckets
+                    - s3:GetObject
+                    - s3:PutObject
+                    - s3:ListBucket
+                    - sts:GetCallerIdentity
+                    - ec2:DescribeNetworkInterfaces
+                    - ec2:DescribeAvailabilityZones
+                    - ec2:DescribeNetworkInterfaceAttribute
+                    - ec2:DescribeVpcs
+                    - ec2:DescribeRegions
+                    - ec2:DescribeSecurityGroups
+                    - ec2:DescribeNetworkInterfacePermissions
+                    - ec2:DescribeSubnets
+                    - ec2:DescribeInstances
+                  Resource: "*"
+
+    QBizDataSourceRole:
+        Type: 'AWS::IAM::Role'
+        Properties:
+            RoleName: qbusinessDatasourceRole
+            AssumeRolePolicyDocument:
+                Version: 2012-10-17
+                Statement:
+                  - Sid: 'AllowsAmazonQToAssumeRoleForServicePrincipal'
+                    Effect: Allow
+                    Principal:
+                      Service: 
+                          - qbusiness.amazonaws.com
+                    Action: 'sts:AssumeRole'
+            Policies:
+              - PolicyName: "QbusinessDatasourcepolicy"
+                PolicyDocument:
+                  Version: "2012-10-17"
+                  Statement:
+                    - Sid: "AllowsAmazonQToDecryptSecret"
+                      Effect: "Allow"
+                      Action:
+                        - "kms:Decrypt"
+                      Resource:
+                        - !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/*"
+                      Condition:
+                        StringLike:
+                          "kms:ViaService": "secretsmanager.${AWS::Region}.amazonaws.com"
+
+                    - Sid: "AllowsAmazonQToGetObjectfromS3"
+                      Effect: "Allow"
+                      Action:
+                        - "s3:GetObject"
+                      Resource:
+                        - "arn:aws:s3:::*"
+                      Condition:
+                        StringEquals:
+                          "aws:ResourceAccount": !Sub "${AWS::AccountId}"
+
+                    - Sid: "AllowsAmazonQToListS3Buckets"
+                      Effect: "Allow"
+                      Action:
+                        - "s3:ListBucket"
+                      Resource:
+                        - "arn:aws:s3:::*"
+                      Condition:
+                        StringEquals:
+                          "aws:ResourceAccount": !Sub "${AWS::AccountId}"
+
+                    - Sid: "AllowsAmazonQToIngestDocuments"
+                      Effect: "Allow"
+                      Action:
+                        - "qbusiness:BatchPutDocument"
+                        - "qbusiness:BatchDeleteDocument"
+                      Resource:
+                        - !Sub "arn:aws:qbusiness:${AWS::Region}:${AWS::AccountId}:*"
+
+                    - Sid: "AllowsAmazonQToCallPrincipalMappingAPIs"
+                      Effect: "Allow"
+                      Action:
+                        - "qbusiness:PutGroup"
+                        - "qbusiness:CreateUser"
+                        - "qbusiness:DeleteGroup"
+                        - "qbusiness:UpdateUser"
+                        - "qbusiness:ListGroups"
+                      Resource:
+                        - !Sub "arn:aws:qbusiness:${AWS::Region}:${AWS::AccountId}:application/*"
+
+                    - Sid: "AllowsAmazonQToCreateAndDeleteENI"
+                      Effect: "Allow"
+                      Action:
+                        - "ec2:CreateNetworkInterface"
+                        - "ec2:DeleteNetworkInterface"
+                      Resource:
+                        - !Sub "arn:aws:ec2:${AWS::Region}:${AWS::AccountId}:subnet/*"
+                        - !Sub "arn:aws:ec2:${AWS::Region}:${AWS::AccountId}:security-group/*"
+                        - !Sub "arn:aws:ec2:${AWS::Region}:${AWS::AccountId}:network-interface/*"
+                      Condition:
+                        StringLike:
+                          "aws:RequestTag/AMAZON_Q": !Sub "qbusiness_${AWS::AccountId}_*"
+                        ForAllValues:StringEquals:
+                          "aws:TagKeys":
+                            - "AMAZON_Q"
+
+                    - Sid: "AllowsAmazonQToCreateTags"
+                      Effect: "Allow"
+                      Action:
+                        - "ec2:CreateTags"
+                      Resource:
+                        - !Sub "arn:aws:ec2:${AWS::Region}:${AWS::AccountId}:network-interface/*"
+                      Condition:
+                        StringEquals:
+                          "ec2:CreateAction": "CreateNetworkInterface"
+
+                    - Sid: "AllowsAmazonQToCreateNetworkInterfacePermission"
+                      Effect: "Allow"
+                      Action:
+                        - "ec2:CreateNetworkInterfacePermission"
+                      Resource:
+                        - !Sub "arn:aws:ec2:${AWS::Region}:${AWS::AccountId}:network-interface/*"
+                      Condition:
+                        StringLike:
+                          "aws:ResourceTag/AMAZON_Q": !Sub "qbusiness_${AWS::AccountId}_*"
+
+                    - Sid: "AllowsAmazonQToConnectToVPC"
+                      Effect: "Allow"
+                      Action:
+                        - "ec2:DescribeNetworkInterfaces"
+                        - "ec2:DescribeAvailabilityZones"
+                        - "ec2:DescribeNetworkInterfaceAttribute"
+                        - "ec2:DescribeVpcs"
+                        - "ec2:DescribeRegions"
+                        - "ec2:DescribeSecurityGroups"
+                        - "ec2:DescribeNetworkInterfacePermissions"
+                        - "ec2:DescribeSubnets"
+                      Resource: "*"
+    QBizWebexperienceRole:
+      Type: 'AWS::IAM::Role'
+      Properties:
+        RoleName: qbusinessWebRole
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Sid: 'QBusinessTrustPolicy'
+              Effect: 'Allow'
+              Principal:
+                Service:
+                  - 'application.qbusiness.amazonaws.com'
+              Action:
+                - 'sts:AssumeRole'
+                - 'sts:SetContext'
+              Condition:
+                StringEquals:
+                  'aws:SourceAccount': !Sub '${AWS::AccountId}'
+                ArnEquals:
+                  'aws:SourceArn': !Sub 'arn:aws:qbusiness:${AWS::Region}:${AWS::AccountId}:application/*'
+        Policies:
+          - PolicyName: "QbusinessWebpolicy"
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Sid: QBusinessConversationPermission
+                  Effect: Allow
+                  Action:
+                    - qbusiness:Chat
+                    - qbusiness:ChatSync
+                    - qbusiness:ListMessages
+                    - qbusiness:ListConversations
+                    - qbusiness:DeleteConversation
+                    - qbusiness:PutFeedback
+                    - qbusiness:GetWebExperience
+                    - qbusiness:GetApplication
+                    - qbusiness:ListPlugins
+                    - qbusiness:GetChatControlsConfiguration
+                    - qbusiness:ListIndices
+                    - qbusiness:ListDataSources
+                  Resource: !Sub 'arn:aws:qbusiness:${AWS::Region}:${AWS::AccountId}:application/*'
+
+                - Sid: QBusinessKMSDecryptPermissions
+                  Effect: Allow
+                  Action:
+                    - kms:Decrypt
+                  Resource:
+                    - !Sub 'arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/*'
+                  Condition:
+                    StringLike:
+                      'kms:ViaService': !Sub 'qbusiness.${AWS::Region}.amazonaws.com'
+
+                - Sid: QBusinessSetContextPermissions
+                  Effect: Allow
+                  Action:
+                    - sts:SetContext
+                  Resource:
+                    - 'arn:aws:sts::*:self'
+                  Condition:
+                    StringLike:
+                      'aws:CalledViaLast': 'qbusiness.amazonaws.com'
+
+                - Sid: QAppsResourceAgnosticPermissions
+                  Effect: Allow
+                  Action:
+                    - qapps:CreateQApp
+                    - qapps:PredictQApp
+                    - qapps:PredictProblemStatementFromConversation
+                    - qapps:PredictQAppFromProblemStatement
+                    - qapps:ListQApps
+                    - qapps:ListLibraryItems
+                    - qapps:CreateSubscriptionToken
+                  Resource: !Sub 'arn:aws:qbusiness:${AWS::Region}:${AWS::AccountId}:application/*'
+
+                - Sid: QAppsAppUniversalPermissions
+                  Effect: Allow
+                  Action:
+                    - qapps:DisassociateQAppFromUser
+                  Resource: !Sub 'arn:aws:qapps:${AWS::Region}:${AWS::AccountId}:application/*'
+
+                - Sid: QAppsAppOwnerPermissions
+                  Effect: Allow
+                  Action:
+                    - qapps:GetQApp
+                    - qapps:CopyQApp
+                    - qapps:UpdateQApp
+                    - qapps:DeleteQApp
+                    - qapps:ImportDocument
+                    - qapps:ImportDocumentToQApp
+                    - qapps:CreateLibraryItem
+                    - qapps:UpdateLibraryItem
+                    - qapps:StartQAppSession
+                  Resource: !Sub 'arn:aws:qapps:${AWS::Region}:${AWS::AccountId}:application/*'
+                  Condition:
+                    StringEqualsIgnoreCase:
+                      'qapps:UserIsAppOwner': 'true'
+
+                - Sid: QAppsPublishedAppPermissions
+                  Effect: Allow
+                  Action:
+                    - qapps:GetQApp
+                    - qapps:CopyQApp
+                    - qapps:AssociateQAppWithUser
+                    - qapps:GetLibraryItem
+                    - qapps:CreateLibraryItemReview
+                    - qapps:AssociateLibraryItemReview
+                    - qapps:DisassociateLibraryItemReview
+                    - qapps:StartQAppSession
+                  Resource: !Sub 'arn:aws:qapps:${AWS::Region}:${AWS::AccountId}:application/*'
+                  Condition:
+                    StringEqualsIgnoreCase:
+                      'qapps:AppIsPublished': 'true'
+
+                - Sid: QAppsAppSessionModeratorPermissions
+                  Effect: Allow
+                  Action:
+                    - qapps:ImportDocument
+                    - qapps:ImportDocumentToQAppSession
+                    - qapps:GetQAppSession
+                    - qapps:GetQAppSessionMetadata
+                    - qapps:UpdateQAppSession
+                    - qapps:UpdateQAppSessionMetadata
+                    - qapps:StopQAppSession
+                  Resource: !Sub 'arn:aws:qapps:${AWS::Region}:${AWS::AccountId}:application/*'
+                  Condition:
+                    StringEqualsIgnoreCase:
+                      'qapps:UserIsSessionModerator': 'true'
+
+                - Sid: QAppsSharedAppSessionPermissions
+                  Effect: Allow
+                  Action:
+                    - qapps:ImportDocument
+                    - qapps:ImportDocumentToQAppSession
+                    - qapps:GetQAppSession
+                    - qapps:GetQAppSessionMetadata
+                    - qapps:UpdateQAppSession
+                  Resource: !Sub 'arn:aws:qapps:${AWS::Region}:${AWS::AccountId}:application/*'
+                  Condition:
+                    StringEqualsIgnoreCase:
+                      'qapps:SessionIsShared': 'true'
+
+Outputs:
+    BlueprintRoleARN:
+        Value: !GetAtt 'BlueprintRole.Arn'
+    QBizDataSourceRoleARN:
+        Value: !GetAtt 'QBizDataSourceRole.Arn'
+    QBizWebexperienceRoleARN:
+        Value: !GetAtt 'QBizWebexperienceRole.Arn'
