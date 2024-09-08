@@ -27,6 +27,7 @@ Resources:
           - arn:aws:iam::aws:policy/AWSCloudFormationFullAccess
           - arn:aws:iam::aws:policy/AWSLambda_FullAccess
           - arn:aws:iam::aws:policy/CloudWatchLogsFullAccess
+          - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
         Policies:
           - PolicyName: BluePrintCustomPolicy
             PolicyDocument:
@@ -79,10 +80,6 @@ Resources:
                     - servicecatalog:*
                     - signin:*
                     - cloudshell:*
-                    - s3:ListAllMyBuckets
-                    - s3:GetObject
-                    - s3:PutObject
-                    - s3:ListBucket
                     - sts:GetCallerIdentity
                     - ec2:DescribeNetworkInterfaces
                     - ec2:DescribeAvailabilityZones
