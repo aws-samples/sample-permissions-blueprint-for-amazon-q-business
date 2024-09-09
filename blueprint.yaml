@@ -28,6 +28,8 @@ Resources:
           - arn:aws:iam::aws:policy/AWSLambda_FullAccess
           - arn:aws:iam::aws:policy/CloudWatchLogsFullAccess
           - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+          - arn:aws:iam::aws:policy/AWSSSOMemberAccountAdministrator
+          
         Policies:
           - PolicyName: BluePrintCustomPolicy
             PolicyDocument:
@@ -57,9 +59,9 @@ Resources:
                     - !Sub "arn:aws:iam::${AWS::AccountId}:role/aws-service-role/qbusiness.amazonaws.com/AWSServiceRoleForQBusiness"
                 - Effect: Allow
                   Action: 
-                    - organizations:DescribeOrganization
-                    - organizations:ListAWSServiceAccessForOrganization
-                    - organizations:ListDelegatedAdministrators
+                    #- organizations:DescribeOrganization
+                    #- organizations:ListAWSServiceAccessForOrganization
+                    #- organizations:ListDelegatedAdministrators
                     - resource-explorer-2:ListIndexes
                     - cloudtrail:DescribeTrails
                     - cloudtrail:ListEventDataStores
@@ -71,10 +73,10 @@ Resources:
                     - qbusiness:*
                     - qapps:*
                     - user-subscriptions:*
-                    - sso:*
-                    - sso-directory:*
-                    - identitystore:*
-                    - identitystore-auth:*
+                    #- sso:*
+                    #- sso-directory:*
+                    #- identitystore:*
+                    #- identitystore-auth:*
                     - kms:*
                     - notifications:*
                     - servicecatalog:*
