@@ -59,9 +59,6 @@ Resources:
                     - !Sub "arn:aws:iam::${AWS::AccountId}:role/aws-service-role/qbusiness.amazonaws.com/AWSServiceRoleForQBusiness"
                 - Effect: Allow
                   Action: 
-                    #- organizations:DescribeOrganization
-                    #- organizations:ListAWSServiceAccessForOrganization
-                    #- organizations:ListDelegatedAdministrators
                     - resource-explorer-2:ListIndexes
                     - cloudtrail:DescribeTrails
                     - cloudtrail:ListEventDataStores
@@ -73,11 +70,6 @@ Resources:
                     - qbusiness:*
                     - qapps:*
                     - user-subscriptions:*
-                    #- sso:*
-                    #- sso-directory:*
-                    #- identitystore:*
-                    #- identitystore-auth:*
-                    - kms:*
                     - notifications:*
                     - servicecatalog:*
                     - signin:*
