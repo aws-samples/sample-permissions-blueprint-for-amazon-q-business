@@ -1,187 +1,35 @@
-# AmazonQBusiness-Permissions
-Permissions needed by Q Business admins:
+# Amazon Q Business Roles CloudFormation Template
 
-If a user has an admin role then they will be able to create Q Business resources as described above. That said, there will be situations where the person creating Q Business resources doesn’t have an admin role. Thus, we have to make sure this person has the right permissions following the least-privileged principle.
+Users with admin roles are able to create new resources on their AWS Accounts. However, there will be situations where the person creating Q Business resources doesn’t have an admin role. Thus, we have to make sure this person has the right permissions following the least-privileged principle.
 
-For Q Business admin role, there are 7 AWS managed policies attached to the blueprint role. There are several policies are added for future Q Business related operation ease (such as Bedrock, Cloudformation and Lambda): 
- 
+This CloudFormation template is designed to create three IAM roles specifically tailored for managing and operating Amazon Q Business applications. These roles provide the necessary permissions to streamline the process of setting up and administering Q Business applications within your AWS environment.
 
-* AWSCloudFormationFullAccess (Allow CloudFormation to create Q Business in the future), 
-* AWSLambda_FullAccess (This is to allow future Document Enrichment process for image and video)
-* AmazonBedrockFullAccess (This is to provide LLM for future document enrichment workflow)
-* CloudWatchLogsFullAccess(This is the CloudWatch logs to troubleshoot issues)
-* SecretManagerReadWrite (This is to allow secret manager to store and retrieve credential for other connectors in the future)
+> [!CAUTION] 
+> Please note that this CloudFormation template is provided as a starting point and is not intended for direct use in production environments without further modifications. The roles created by this template, especially the "qbusinessDatasourceRole," may require additional adjustments to accommodate specific data connectors and use cases. It is crucial to review and customize the roles based on your organization's security requirements and the specific needs of your Amazon Q Business applications.
 
-Besides these managed policies, there is one custom policy attached to this QBusiness admin role. This policy is to 
-
-* Necessary organization operation for IDC 
-
-                    - organizations:DescribeOrganization
-                    - organizations:ListAWSServiceAccessForOrganization
-                    - organizations:ListDelegatedAdministrators
-                    - resource-explorer-2:ListIndexes
-
-* IAM: operations to assign service linked role and pre-created data source and web experience roles to Q Business applications
-
-                    - iam:GetAccountSummary
-                    - iam:GetServiceLastAccessedDetails
-                    - iam:ListAccountAliases
-                    - iam:ListPolicies
-                    - iam:ListRoles
-                    - iam:ListUsers
-                    - iam:GetRole
-                    - iam:GetPolicy
-                    - iam:GetPolicyVersion
-                    - iam:PassRole
-                    - iam:ListAttachedRolePolicies
-                    - iam:ListInstanceProfilesForRole
-                    - iam:ListRolePolicies
-                    - iam:GetUser
-                    - iam:ListUserPolicies
-                    - iam:ListUserTags
-                    - iam:ListGroupsForUser
-
-* Signin (console access)
-* sso (IDC)
-* sso-directory (IDC)
-* identitystore (IDC)
-* identitystore-auth (IDC)
-* UserSubscription (IDC)
-* Q Business (Q Business service)
-* Q apps  (Q Business service)
-* cloudtrail (DescribeListCreate activities to monitor)
-* aws config describe (resource management) 
-* notification (Q Business monitor and notification)
-* kms (potential key management needs)
-* fsx(file storage access needs)
-* service catalog (service/application management needs)
-* Ec2 describe* (for future EC2 on-prem instance)
-* CloudShell to perform CLI (troubleshooting)
-* relevant S3 operation (list, get, put for s3 object management)
-
-Permissions needed by the Service:
-
-Q Business resources (like applications and web experiences) need permissions to access data sources.
-
-Q Business also need to perform calls to other AWS Services (like Cloudwatch) on your behalf.
-
-When you create a Q Business application, you need to provide Q Business the permissions mentioned earlier, and when you use the Q Business Console, you will have the chance to create these permissions “on-the-fly”. You will have the chance to create/use  a Service-linked role (SRL) or Service Role (SR).
-
-Service-linked role (SLR): A type of IAM role managed by Amazon Q. This role is linked to Q Business and includes all the permissions the service requires to call other services on your behalf. The service linked role for Q Business has a AWS managed policy for necessary AWS services to manage/monitor Q Business application. 
-
-Service-linked roles are useful because you don’t have to manually add/create permissions. For reference, this is the policy that the SLR uses. 
-
-Service role (SR): Unlike SLR, you are manually creating a role for Q Business to assume. This role must have permissions to access AWS resources it needs to create your application.
+We recommend thoroughly testing and refining the roles in a non-production environment before applying them to your production setup. Ensure that the roles align with your security best practices and grant only the minimum necessary permissions for your Q Business applications to function effectively.
 
 
-Roles and Policies
+## Roles Created by the Template
 
-Service Role
+1. **qbusinessblueprint**: This role is intended to be assumed by the person responsible for operating Amazon Q Business applications. It grants permissions to perform essential tasks such as creating applications, adding users to applications, modifying subscriptions, and more. By assuming this role, the designated operator can efficiently manage and maintain the Q Business application ecosystem.
 
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Sid": "AmazonQApplicationPutMetricDataPermission",
-            "Effect": "Allow",
-            "Action": [
-                "cloudwatch:PutMetricData"
-            ],
-            "Resource": "",
-            "Condition": {
-                "StringEquals": {
-                    "cloudwatch:namespace": "AWS/QBusiness"
-                }
-            }
-        },
-        {
-            "Sid": "AmazonQApplicationDescribeLogGroupsPermission",
-            "Effect": "Allow",
-            "Action": [
-                "logs:DescribeLogGroups"
-            ],
-            "Resource": ""
-        },
-        {
-            "Sid": "AmazonQApplicationCreateLogGroupPermission",
-            "Effect": "Allow",
-            "Action": [
-                "logs:CreateLogGroup"
-            ],
-            "Resource": [
-                "arn:aws:logs:{region}:{account-id}:log-group:/aws/qbusiness/"
-            ]
-        },
-        {
-            "Sid": "AmazonQApplicationLogStreamPermission",
-            "Effect": "Allow",
-            "Action": [
-                "logs:DescribeLogStreams",
-                "logs:CreateLogStream",
-                "logs:PutLogEvents"
-            ],
-            "Resource": [
-                "arn:aws:logs:{region}:{account-id}:log-group:/aws/qbusiness/:log-stream:*"
-            ]
-        }
-    ]
-}
+2. **qbusinessDatasourceRole**: This role is designed to be assigned to every data source created within Amazon Q Business applications. It provides the necessary permissions for the data source to access and interact with relevant AWS services and resources. Assigning this role to your data sources ensures that they have the required access to function properly within the Q Business environment.
 
-Policy for Q Business to Assume a Role
+3. **qbusinessWebRole**: This role is meant to be assigned to the web experience created during the final step of setting up an Amazon Q Business application. It grants the necessary permissions for the web experience to interact with the Q Business application and perform its intended functions seamlessly.
 
 
 
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "AllowsAmazonQToAssumeRoleForServicePrincipal",
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "qbusiness.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole",
-      "Condition": {
-        "StringEquals": {
-          "aws:SourceAccount": "{{source_account}}"
-        },
-        "ArnLike": {
-          "aws:SourceArn": "arn:aws:qbusiness:{{region}}:{{source_account}}:application/{{application_id}}"
-        }
-      }
-    }
-  ]
-}
-
-Permissions needed by Data source connector:
-
-For each Q Business application, there are two other roles that need to be created: Data source and Web experience. If you use the console, you can either create an IAM role when you connect your data source to Amazon Q Business or use an existing role. From security perspective, Q Business admin role does not have IAM:CreateRole permission attached, so it is recommended to create these two roles via Cloudformation before the Q Business application creation. 
-
-Role for Data Source
-
-The specific permissions required depend on the data source. At a minimum, your IAM role must include the following:
-
-* Permission to access the BatchPutDocument and BatchDeleteDocument API operations in order to ingest documents.
-* Permission to access the User Store APIs needed to ingest access control and identity information from documents.
-
-In the attached example, besides the above two operations, access to S3 permission is also added to use an S3 data source. Other permissions are added to make the role more generalized for more advanced operation, such as credential retrieval, VPC connection. These permissions allow the data source connector to use secret manager to retrieve credentials, connect VPC and create ENI for network interface.  are: AllowsAmazonQToDecryptSecret, AllowsAmazonQToCreateAndDeleteENI, AllowsAmazonQToCreateNetworkInterfacePermission, AllowsAmazonQToCreateTags. 
-
-Role for Web Experience
-
-For Web experience role, you can create basic role to decrypt data, and allow conversation and context permission. 
-
-QBusinessKMSDecryptPermissions
-QBusinessConversationPermission
-QBusinessSetContextPermissions
 
 
-If the users of your deployed web experience want to create lightweight, purpose-built Amazon Q Apps within your broader Amazon Q Business application environment, you must include the following policy permissions for Q Apps.
+## Getting Started
 
-QAppsResourceAgnosticPermissions
-AppsAppUniversalPermissions
-QAppsAppOwnerPermissions
-QAppsPublishedAppPermissions
-QAppsAppSessionModeratorPermissions
-QAppsSharedAppSessionPermissions
+To use this CloudFormation template, follow these steps:
 
+1. Review the template and make any necessary adjustments to fit your specific requirements.
+2. Deploy the CloudFormation stack using this template in your desired AWS environment.
+3. Assign the "qbusinessblueprint" role to the person responsible for operating your Q Business applications.
+4. When creating data sources for your Q Business applications, assign the "qbusinessDatasourceRole" to each data source.
+5. During the final step of creating a Q Business application, assign the "qbusinessWebRole" to the web experience.
 
+By leveraging this CloudFormation template, you can quickly set up the essential roles needed to manage and operate your Amazon Q Business applications, saving time and effort in the process.
