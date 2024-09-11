@@ -7,11 +7,15 @@ Description: >
     - q business web experience Role
     - q business data source role
 
+Parameters:
+    BlueprintRoleName:
+        Type: String
+        Default: "qbusinessblueprint"    
 Resources:
     BlueprintRole:
       Type: 'AWS::IAM::Role'
       Properties:
-        RoleName: qbusinessblueprint
+        RoleName: !Ref BlueprintRoleName
         AssumeRolePolicyDocument:
           Version: 2012-10-17
           Statement:
@@ -37,29 +41,10 @@ Resources:
               Statement:
                 - Effect: Allow
                   Action:
-                    - iam:GetAccountSummary
-                    - iam:GetServiceLastAccessedDetails
-                    - iam:ListAccountAliases
-                    - iam:ListPolicies
-                    - iam:ListRoles
-                    - iam:ListUsers
-                    - iam:GetRole
-                    - iam:GetPolicy
-                    - iam:GetPolicyVersion
-                    - iam:PassRole
-                    - iam:ListAttachedRolePolicies
-                    - iam:ListInstanceProfilesForRole
-                    - iam:ListRolePolicies
-                    - iam:GetUser
-                    - iam:ListUserPolicies
-                    - iam:ListUserTags
-                    - iam:ListGroupsForUser
-                  Resource: 
-                    - !Sub "arn:aws:iam::${AWS::AccountId}:role/qbusiness*"
-                    - !Sub "arn:aws:iam::${AWS::AccountId}:role/aws-service-role/qbusiness.amazonaws.com/AWSServiceRoleForQBusiness"
-                - Effect: Allow
-                  Action: 
-                    - resource-explorer-2:ListIndexes
+                    - access-analyzer:GetGeneratedPolicy
+                    - access-analyzer:ListPolicyGenerations
+                    - access-analyzer:StartPolicyGeneration
+                    - access-analyzer:ValidatePolicy
                     - cloudtrail:DescribeTrails
                     - cloudtrail:ListEventDataStores
                     - cloudtrail:ListTrails
@@ -67,23 +52,99 @@ Resources:
                     - cloudtrail:CreateTrail
                     - config:DescribeConfigurationRecorderStatus
                     - config:DescribeConfigurationRecorders
-                    - qbusiness:*
-                    - qapps:*
-                    - user-subscriptions:*
-                    - notifications:*
-                    - servicecatalog:*
-                    - signin:*
-                    - cloudshell:*
-                    - sts:GetCallerIdentity
-                    - ec2:DescribeNetworkInterfaces
-                    - ec2:DescribeAvailabilityZones
-                    - ec2:DescribeNetworkInterfaceAttribute
-                    - ec2:DescribeVpcs
                     - ec2:DescribeRegions
                     - ec2:DescribeSecurityGroups
-                    - ec2:DescribeNetworkInterfacePermissions
                     - ec2:DescribeSubnets
-                    - ec2:DescribeInstances
+                    - ec2:DescribeVpcs
+                    - fsx:DescribeFileSystems
+                    - iam:GetAccountSummary
+                    - iam:GetServiceLastAccessedDetails
+                    - iam:ListAccountAliases
+                    - iam:ListMFADevices
+                    - iam:ListPolicies
+                    - iam:ListRoles
+                    - iam:ListUsers
+                    - organizations:DescribeOrganization
+                    - organizations:ListAWSServiceAccessForOrganization
+                    - organizations:ListDelegatedAdministrators
+                    - resource-explorer-2:ListIndexes
+                    - cloudshell:*
+                    - sts:GetCallerIdentity
+                  Resource: "*"
+                - Effect: Allow
+                  Action:
+                    - iam:GenerateServiceLastAccessedDetails
+                    - iam:ListPoliciesGrantingServiceAccess
+                  Resource: !Sub "arn:aws:iam::${AWS::AccountId}:group/*"
+                - Effect: Allow
+                  Action:
+                    - iam:CreatePolicy
+                    - iam:GenerateServiceLastAccessedDetails
+                    - iam:GetPolicy
+                    - iam:GetPolicyVersion
+                  Resource: !Sub "arn:aws:iam::${AWS::AccountId}:policy/*"
+                - Effect: Allow
+                  Action:
+                    - iam:AttachRolePolicy
+                    - iam:CreateRole
+                    - iam:CreateServiceLinkedRole
+                    - iam:GenerateServiceLastAccessedDetails
+                    - iam:GetRole
+                    - iam:ListAttachedRolePolicies
+                    - iam:ListInstanceProfilesForRole
+                    - iam:ListPoliciesGrantingServiceAccess
+                    - iam:ListRolePolicies
+                    - iam:PassRole
+                    - iam:ListRoleTags
+                  Resource: !Sub "arn:aws:iam::${AWS::AccountId}:role/${BlueprintRoleName}"
+                - Effect: Allow
+                  Action:
+                    - iam:GenerateServiceLastAccessedDetails
+                    - iam:GetAccessKeyLastUsed
+                    - iam:GetLoginProfile
+                    - iam:GetUser
+                    - iam:ListAccessKeys
+                    - iam:ListAttachedUserPolicies
+                    - iam:ListGroupsForUser
+                    - iam:ListPoliciesGrantingServiceAccess
+                    - iam:ListSigningCertificates
+                    - iam:ListUserPolicies
+                    - iam:ListUserTags
+                  Resource: !Sub "arn:aws:iam::${AWS::AccountId}:user/*"
+                - Effect: Allow
+                  Action: identitystore:DescribeUser
+                  Resource: !Sub "arn:aws:identitystore::${AWS::AccountId}:identitystore/*"
+                - Effect: Allow
+                  Action: identitystore:DescribeUser
+                  Resource: "arn:aws:identitystore:::user/*"
+                - Effect: Allow
+                  Action:
+                    - iam:ListUsers
+                    - iam:ListRoleTags
+                    - iam:GetGroupPolicy
+                    - iam:CreateUser
+                    - iam:CreateRole
+                    - iam:PassRole
+                    - iam:CreateLoginProfile
+                    - iam:CreatePolicyVersion
+                    - iam:AttachRolePolicy
+                    - iam:AttachUserPolicy
+                    - iam:ListAttachedRolePolicies
+                    - iam:ListAttachedGroupPolicies
+                    - iam:AttachGroupPolicy
+                    - iam:PutRolePolicy
+                  Resource: !Sub "arn:aws:iam::${AWS::AccountId}:role/*"
+                - Effect: Allow
+                  Action:
+                    - qbusiness:*
+                    - qapps:*
+                  Resource: "*"
+                - Effect: Allow
+                  Action: signin:*
+                  Resource: "*"
+                - Effect: Allow
+                  Action:
+                    - user-subscriptions:*
                   Resource: "*"
 
     QBizDataSourceRole:
