@@ -1,0 +1,91 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: CloudFormation CONFLUENCE Data Source Template
+Resources:
+  DataSourceConfluence:
+    Type: AWS::QBusiness::DataSource
+    Properties:
+      ApplicationId: app12345-1234-1234-1234-123456789012
+      IndexId: indx1234-1234-1234-1234-123456789012
+      DisplayName: MyConfluenceDataSource
+      RoleArn: arn:aws:iam::123456789012:role/qbusiness-data-source-role
+      Configuration:
+        type: CONFLUENCEV2
+        syncMode: FULL_CRAWL
+        secretArn: arn:aws:secretsmanager:us-west-2:123456789012:secret:my-confluence-secret
+        enableIdentityCrawler: "true"
+        sslCertificatePath:
+          bucket: my-confluence-bucket
+          key: path/to/certificate.pem
+        connectionConfiguration:
+          repositoryEndpointMetadata:
+            hostUrl: https://mycompany.atlassian.net
+            type: ON_PREM
+            authType: Personal-token
+        repositoryConfigurations:
+          space:
+            fieldMappings:
+              - indexFieldName: space_id
+                indexFieldType: STRING
+                dataSourceFieldName: id
+                dateFieldFormat: yyyy-MM-dd'T'HH:mm:ss'Z'
+          page:
+            fieldMappings:
+              - indexFieldName: page_id
+                indexFieldType: STRING
+                dataSourceFieldName: id
+                dateFieldFormat: yyyy-MM-dd'T'HH:mm:ss'Z'
+          blog:
+            fieldMappings:
+              - indexFieldName: blog_id
+                indexFieldType: STRING
+                dataSourceFieldName: id
+                dateFieldFormat: yyyy-MM-dd'T'HH:mm:ss'Z'
+          comment:
+            fieldMappings:
+              - indexFieldName: comment_id
+                indexFieldType: STRING
+                dataSourceFieldName: id
+                dateFieldFormat: yyyy-MM-dd'T'HH:mm:ss'Z'
+          attachment:
+            fieldMappings:
+              - indexFieldName: attachment_id
+                indexFieldType: STRING
+                dataSourceFieldName: id
+                dateFieldFormat: yyyy-MM-dd'T'HH:mm:ss'Z'
+        additionalProperties:
+          isCrawlAcl: "true"
+          fieldForUserId: user_id
+          inclusionSpaceKeyFilter:
+            - SPACE1
+            - SPACE2
+          exclusionSpaceKeyFilter:
+            - SPACE3
+          pageTitleRegEX:
+            - "^.*$"
+          blogTitleRegEX:
+            - "^.*$"
+          commentTitleRegEX:
+            - "^.*$"
+          attachmentTitleRegEX:
+            - "^.*$"
+          isCrawlPersonalSpace: "false"
+          isCrawlArchivedSpace: "false"
+          isCrawlArchivedPage: "true"
+          isCrawlPage: "true"
+          isCrawlBlog: "true"
+          isCrawlPageComment: "false"
+          isCrawlPageAttachment: "false"
+          isCrawlBlogComment: "true"
+          isCrawlBlogAttachment: "true"
+          maxFileSizeInMegaBytes: "50"
+          inclusionFileTypePatterns:
+            - "*.pdf"
+            - "*.docx"
+          exclusionFileTypePatterns:
+            - "*.tmp"
+          inclusionUrlPatterns:
+            - "*"
+          exclusionUrlPatterns:
+            - "*.tmp"
+          enableDeletionProtection: "false"
+          deletionProtectionThreshold: "15"

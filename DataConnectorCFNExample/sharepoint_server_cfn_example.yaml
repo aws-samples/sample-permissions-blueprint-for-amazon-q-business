@@ -1,0 +1,110 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: CloudFormation SHAREPOINT Data Source Template
+Resources:
+  DataSourceSharePoint:
+    Type: AWS::QBusiness::DataSource
+    Properties:
+      ApplicationId: app12345-1234-1234-1234-123456789012
+      IndexId: indx1234-1234-1234-1234-123456789012
+      DisplayName: MySharePointDataSource
+      RoleArn: arn:aws:iam::123456789012:role/qbusiness-data-source-role
+      Configuration:
+        type: SHAREPOINTV2
+        syncMode: FULL_CRAWL
+        secretArn: arn:aws:secretsmanager:us-west-2:123456789012:secret:my-sharepoint-secret
+        enableIdentityCrawler: "true"
+        sslCertificatePath:
+          bucket: my-sharepoint-bucket
+          key: ssl/cert.pem
+        connectionConfiguration:
+          repositoryEndpointMetadata:
+            tenantId: 1234567a-890b-1234-567c-123456789012
+            domain: mycompany.sharepoint.com
+            siteUrls:
+              - https://mycompany.sharepoint.com/sites/TeamSite
+            repositoryAdditionalProperties:
+              authType: OAuth2
+              version: Server
+              onPremVersion: "2019"
+              enableDeletionProtection: "false"
+              deletionProtectionThreshold: "15"
+        repositoryConfigurations:
+          event:
+            fieldMappings:
+              - indexFieldName: event_id
+                indexFieldType: STRING
+                dataSourceFieldName: id
+                dateFieldFormat: yyyy-MM-dd'T'HH:mm:ss'Z'
+          page:
+            fieldMappings:
+              - indexFieldName: page_id
+                indexFieldType: STRING
+                dataSourceFieldName: id
+                dateFieldFormat: yyyy-MM-dd'T'HH:mm:ss'Z'
+          file:
+            fieldMappings:
+              - indexFieldName: file_id
+                indexFieldType: STRING
+                dataSourceFieldName: id
+                dateFieldFormat: yyyy-MM-dd'T'HH:mm:ss'Z'
+          link:
+            fieldMappings:
+              - indexFieldName: link_id
+                indexFieldType: STRING
+                dataSourceFieldName: id
+                dateFieldFormat: yyyy-MM-dd'T'HH:mm:ss'Z'
+          attachment:
+            fieldMappings:
+              - indexFieldName: attachment_id
+                indexFieldType: STRING
+                dataSourceFieldName: id
+                dateFieldFormat: yyyy-MM-dd'T'HH:mm:ss'Z'
+          comment:
+            fieldMappings:
+              - indexFieldName: comment_id
+                indexFieldType: STRING
+                dataSourceFieldName: id
+                dateFieldFormat: yyyy-MM-dd'T'HH:mm:ss'Z'
+        additionalProperties:
+          eventTitleFilterRegEx:
+            - "^.*$"
+          pageTitleFilterRegEx:
+            - "^.*$"
+          linkTitleFilterRegEx:
+            - "^.*$"
+          inclusionFilePath:
+            - documents/
+          exclusionFilePath:
+            - drafts/
+          inclusionFileTypePatterns:
+            - "*.pdf"
+            - "*.docx"
+          exclusionFileTypePatterns:
+            - "*.tmp"
+          inclusionFileNamePatterns:
+            - "*report*"
+          exclusionFileNamePatterns:
+            - "*draft*"
+          inclusionOneNoteSectionNamePatterns:
+            - "*"
+          exclusionOneNoteSectionNamePatterns:
+            - archived
+          inclusionOneNotePageNamePatterns:
+            - "*"
+          exclusionOneNotePageNamePatterns:
+            - test
+          crawlFiles: "true"
+          crawlPages: "true"
+          crawlEvents: "true"
+          crawlComments: "true"
+          crawlLinks: "true"
+          crawlAttachments: "true"
+          crawlListData: "false"
+          crawlAcl: "true"
+          aclConfiguration: ACLWithUsernameFmt
+          emailDomain: mycompany.com
+          isCrawlLocalGroupMapping: "false"
+          isCrawlAdGroupMapping: "true"
+          proxyHost: proxy.mycompany.com
+          proxyPort: "8080"
+          maxFileSizeInMegaBytes: "50"

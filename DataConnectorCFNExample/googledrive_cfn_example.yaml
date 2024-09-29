@@ -1,0 +1,68 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: CloudFormation GOOGLEDRIVE Data Source Template
+Resources:
+  DataSourceGoogleDrive:
+    Type: AWS::QBusiness::DataSource
+    Properties:
+      ApplicationId: app12345-1234-1234-1234-123456789012
+      IndexId: indx1234-1234-1234-1234-123456789012
+      DisplayName: MyGoogleDriveDataSource
+      RoleArn: arn:aws:iam::123456789012:role/qbusiness-data-source-role
+      Configuration:
+        type: GOOGLEDRIVEV2
+        syncMode: FULL_CRAWL
+        secretArn: arn:aws:secretsmanager:us-west-2:123456789012:secret:my-google-drive-secret
+        enableIdentityCrawler: "true"
+        connectionConfiguration:
+          repositoryEndpointMetadata:
+            authType: OAuth2
+        repositoryConfigurations:
+          file:
+            fieldMappings:
+              - indexFieldName: file_id
+                indexFieldType: STRING
+                dataSourceFieldName: id
+                dateFieldFormat: yyyy-MM-dd'T'HH:mm:ss'Z'
+          comment:
+            fieldMappings:
+              - indexFieldName: comment_id
+                indexFieldType: STRING
+                dataSourceFieldName: id
+                dateFieldFormat: yyyy-MM-dd'T'HH:mm:ss'Z'
+        additionalProperties:
+          maxFileSizeInMegaBytes: "50"
+          isCrawlComment: "true"
+          isCrawlMyDriveAndSharedWithMe: "true"
+          isCrawlSharedDrives: "false"
+          isCrawlAcl: "true"
+          fieldForUserId: user@example.com
+          excludeUserAccounts:
+            - user1@example.com
+            - user2@example.com
+          excludeSharedDrives:
+            - SharedDrive1
+          excludeMimeTypes:
+            - application/vnd.google-apps.folder
+          includeUserAccounts:
+            - user3@example.com
+          includeSharedDrives:
+            - SharedDrive2
+          includeMimeTypes:
+            - application/pdf
+            - application/vnd.google-apps.document
+          includeTargetAudienceGroup:
+            - group1@example.com
+          inclusionFileTypePatterns:
+            - "*.pdf"
+          inclusionFileNamePatterns:
+            - "*report*"
+          exclusionFileTypePatterns:
+            - "*.tmp"
+          exclusionFileNamePatterns:
+            - "*draft*"
+          inclusionFilePathFilter:
+            - documents/
+          exclusionFilePathFilter:
+            - drafts/
+          enableDeletionProtection: "true"
+          deletionProtectionThreshold: "15"

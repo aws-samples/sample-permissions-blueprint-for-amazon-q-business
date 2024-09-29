@@ -1,0 +1,35 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "CloudFormation Amazon S3 Data Source Template"
+Resources:
+  DataSourceS3:
+    Type: "AWS::QBusiness::DataSource"
+    Properties:
+      ApplicationId: app12345-1234-1234-1234-123456789012
+      IndexId: indx1234-1234-1234-1234-123456789012
+      DisplayName: MyS3DataSource
+      RoleArn: arn:aws:iam::123456789012:role/qbusiness-data-source-role
+      Configuration:
+        type: S3
+        syncMode: FULL_CRAWL
+        connectionConfiguration:
+          repositoryEndpointMetadata:
+            BucketName: my-company-data-bucket
+        repositoryConfigurations:
+          document:
+            fieldMappings:
+              - dataSourceFieldName: content
+                indexFieldName: document_content
+                indexFieldType: STRING
+        additionalProperties:
+          inclusionPatterns:
+            - "*.pdf"
+            - "*.docx"
+          exclusionPatterns:
+            - "*.tmp"
+          inclusionPrefixes:
+            - "/important-docs/"
+          exclusionPrefixes:
+            - "/temporary/"
+          aclConfigurationFilePath: "/configs/acl.json"
+          metadataFilesPrefix: "/metadata/"
+          maxFileSizeInMegaBytes: "50"

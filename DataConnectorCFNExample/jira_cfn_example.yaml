@@ -1,0 +1,70 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: CloudFormation JIRA Data Source Template
+Resources:
+  DataSourceJira:
+    Type: AWS::QBusiness::DataSource
+    Properties:
+      ApplicationId: app12345-1234-1234-1234-123456789012
+      IndexId: indx1234-1234-1234-1234-123456789012
+      DisplayName: MyJiraDataSource
+      RoleArn: arn:aws:iam::123456789012:role/qbusiness-data-source-role
+      Configuration:
+        type: JIRA
+        syncMode: FULL_CRAWL
+        secretArn: arn:aws:secretsmanager:us-west-2:123456789012:secret:my-jira-secret
+        enableIdentityCrawler: "true"
+        connectionConfiguration:
+          repositoryEndpointMetadata:
+            jiraAccountUrl: https://mycompany.atlassian.net
+        repositoryConfigurations:
+          attachment:
+            fieldMappings:
+              - indexFieldName: attachment_id
+                indexFieldType: STRING
+                dataSourceFieldName: id
+                dateFieldFormat: yyyy-MM-dd'T'HH:mm:ss'Z'
+          comment:
+            fieldMappings:
+              - indexFieldName: comment_body
+                indexFieldType: STRING
+                dataSourceFieldName: body
+                dateFieldFormat: yyyy-MM-dd'T'HH:mm:ss'Z'
+          issue:
+            fieldMappings:
+              - indexFieldName: issue_key
+                indexFieldType: STRING
+                dataSourceFieldName: key
+                dateFieldFormat: yyyy-MM-dd'T'HH:mm:ss'Z'
+          project:
+            fieldMappings:
+              - indexFieldName: project_name
+                indexFieldType: STRING
+                dataSourceFieldName: name
+                dateFieldFormat: yyyy-MM-dd'T'HH:mm:ss'Z'
+          worklog:
+            fieldMappings:
+              - indexFieldName: worklog_time_spent
+                indexFieldType: STRING
+                dataSourceFieldName: timeSpent
+                dateFieldFormat: yyyy-MM-dd'T'HH:mm:ss'Z'
+        additionalProperties:
+          isCrawlAcl: "true"
+          maxFileSizeInMegaBytes: "50"
+          fieldForUserId: user_id
+          issuetype:
+            - Bug
+            - Story
+          status:
+            - Open
+            - In Progress
+          project:
+            - Project1
+            - Project2
+          issueSubEntityFilter:
+            - SubEntity1
+          inclusionPatterns:
+            - "*"
+          exclusionPatterns:
+            - "*.tmp"
+          enableDeletionProtection: "false"
+          deletionProtectionThreshold: "15"
