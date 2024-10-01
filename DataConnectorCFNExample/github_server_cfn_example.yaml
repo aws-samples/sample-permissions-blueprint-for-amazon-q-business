@@ -1,0 +1,53 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: CloudFormation GITHUB Data Source Template
+Resources:
+  DataSourceGitHub:
+    Type: AWS::QBusiness::DataSource
+    Properties:
+      ApplicationId: app12345-1234-1234-1234-123456789012
+      IndexId: indx1234-1234-1234-1234-123456789012
+      DisplayName: MyGitHubDataSource
+      RoleArn: arn:aws:iam::123456789012:role/qbusiness-data-source-role
+      Configuration:
+        type: GITHUB
+        syncMode: FULL_CRAWL
+        secretArn: arn:aws:secretsmanager:us-west-2:123456789012:secret:my-github-secret
+        enableIdentityCrawler: "true"
+        sslCertificatePath:
+          bucket: my-github-bucket
+          key: certificates/my-cert.pem
+        connectionConfiguration:
+          repositoryEndpointMetadata:
+            type: GitHub
+            hostUrl: https://api.github.com
+            organizationName: my-org
+        repositoryConfigurations:
+          ghRepository:
+            fieldMappings:
+              - indexFieldName: repo_name
+                indexFieldType: STRING
+                dataSourceFieldName: name
+                dateFieldFormat: yyyy-MM-dd'T'HH:mm:ss'Z'
+          ghCommit:
+            fieldMappings:
+              - indexFieldName: commit_id
+                indexFieldType: STRING
+                dataSourceFieldName: id
+                dateFieldFormat: yyyy-MM-dd'T'HH:mm:ss'Z'
+        additionalProperties:
+          isCrawlAcl: "true"
+          maxFileSizeInMegaBytes: "50"
+          crawlRepository: "true"
+          crawlIssue: "true"
+          repositoryFilter:
+            - repositoryName: my-repo
+              branchNameList:
+                - main
+                - develop
+          inclusionFileTypePatterns:
+            - "*.md"
+            - "*.txt"
+          exclusionFileNamePatterns:
+            - "*draft*"
+          enableDeletionProtection: "false"
+          deletionProtectionThreshold: "15"

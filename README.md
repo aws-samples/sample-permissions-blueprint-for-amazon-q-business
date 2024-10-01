@@ -4,11 +4,26 @@ Users with admin roles are able to create new resources on their AWS Accounts. H
 
 This CloudFormation template is designed to create three IAM roles specifically tailored for managing and operating Amazon Q Business applications. These roles provide the necessary permissions to streamline the process of setting up and administering Q Business applications within your AWS environment.
 
-> [!CAUTION] 
+This repository also contains example CloudFormation YAML files for the following connectors:
+
+- S3
+- Web Crawler
+- Confluence (Cloud)
+- Confluence (Server/Data Center)
+- SharePoint (Online)
+- Confluence (Server 2016, 2019, Subscription Edition)
+- Slack
+- Jira
+- Google Drive
+- GitHub (Cloud)
+- GitHub (Server)
+- MS Teams
+- ServiceNow
+
+> [!CAUTION]
 > Please note that this CloudFormation template is provided as a starting point and is not intended for direct use in production environments without further modifications. The roles created by this template, especially the "qbusinessDatasourceRole," may require additional adjustments to accommodate specific data connectors and use cases. It is crucial to review and customize the roles based on your organization's security requirements and the specific needs of your Amazon Q Business applications.
 
 We recommend thoroughly testing and refining the roles in a non-production environment before applying them to your production setup. Ensure that the roles align with your security best practices and grant only the minimum necessary permissions for your Q Business applications to function effectively.
-
 
 ## Roles Created by the Template
 
@@ -17,10 +32,6 @@ We recommend thoroughly testing and refining the roles in a non-production envir
 2. **qbusinessDatasourceRole**: This role is designed to be assigned to every data source created within Amazon Q Business applications. It provides the necessary permissions for the data source to access and interact with relevant AWS services and resources. Assigning this role to your data sources ensures that they have the required access to function properly within the Q Business environment.
 
 3. **qbusinessWebRole**: This role is meant to be assigned to the web experience created during the final step of setting up an Amazon Q Business application. It grants the necessary permissions for the web experience to interact with the Q Business application and perform its intended functions seamlessly.
-
-
-
-
 
 ## Getting Started
 

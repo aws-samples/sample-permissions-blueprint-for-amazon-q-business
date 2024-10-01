@@ -1,0 +1,62 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: CloudFormation SHAREPOINT Data Source Template
+Resources:
+  DataSourceSharePoint:
+    Type: AWS::QBusiness::DataSource
+    Properties:
+      ApplicationId: app12345-1234-1234-1234-123456789012
+      IndexId: indx1234-1234-1234-1234-123456789012
+      DisplayName: MySharePointDataSource
+      RoleArn: arn:aws:iam::123456789012:role/qbusiness-data-source-role
+      Configuration:
+        type: SHAREPOINTV2
+        syncMode: FULL_CRAWL
+        secretArn: arn:aws:secretsmanager:us-west-2:123456789012:secret:my-sharepoint-secret
+        enableIdentityCrawler: "true"
+        connectionConfiguration:
+          repositoryEndpointMetadata:
+            tenantId: 1234567a-890b-1234-567c-123456789012
+            domain: example.sharepoint.com
+            siteUrls:
+              - https://example.sharepoint.com/sites/mysite
+            repositoryAdditionalProperties:
+              s3bucketName: my-bucket
+              s3certificateName: my-certificate
+              authType: OAuth2
+              version: Online
+              enableDeletionProtection: "false"
+              deletionProtectionThreshold: "15"
+        repositoryConfigurations:
+          event:
+            fieldMappings:
+              - indexFieldName: event_id
+                indexFieldType: STRING
+                dataSourceFieldName: id
+                dateFieldFormat: yyyy-MM-dd'T'HH:mm:ss'Z'
+          page:
+            fieldMappings:
+              - indexFieldName: page_id
+                indexFieldType: STRING
+                dataSourceFieldName: id
+                dateFieldFormat: yyyy-MM-dd'T'HH:mm:ss'Z'
+        additionalProperties:
+          eventTitleFilterRegEx:
+            - "^.*$"
+          pageTitleFilterRegEx:
+            - "^.*$"
+          linkTitleFilterRegEx:
+            - "^.*$"
+          inclusionFilePath:
+            - documents/
+          exclusionFilePath:
+            - drafts/
+          inclusionFileTypePatterns:
+            - "*.docx"
+          exclusionFileTypePatterns:
+            - "*.tmp"
+          inclusionFileNamePatterns:
+            - "*report*"
+          exclusionFileNamePatterns:
+            - "*draft*"
+          enableDeletionProtection: "false"
+          maxFileSizeInMegaBytes: "50"

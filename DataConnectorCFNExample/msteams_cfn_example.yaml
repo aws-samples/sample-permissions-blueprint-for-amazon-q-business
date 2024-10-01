@@ -1,0 +1,113 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: CloudFormation MSTEAMS Data Source Template
+Resources:
+  DataSourceMSTeams:
+    Type: AWS::QBusiness::DataSource
+    Properties:
+      ApplicationId: app12345-1234-1234-1234-123456789012
+      IndexId: indx1234-1234-1234-1234-123456789012
+      DisplayName: MyMSTeamsDataSource
+      RoleArn: arn:aws:iam::123456789012:role/qbusiness-data-source-role
+      Configuration:
+        type: MSTEAMS
+        syncMode: FULL_CRAWL
+        secretArn: arn:aws:secretsmanager:us-west-2:123456789012:secret:my-teams-secret
+        enableIdentityCrawler: "true"
+        connectionConfiguration:
+          repositoryEndpointMetadata:
+            tenantId: 123e4567-e89b-12d3-a456-426614174000
+        repositoryConfigurations:
+          chatMessage:
+            fieldMappings:
+              - indexFieldName: message_id
+                indexFieldType: STRING
+                dataSourceFieldName: id
+                dateFieldFormat: yyyy-MM-dd'T'HH:mm:ss'Z'
+          chatAttachment:
+            fieldMappings:
+              - indexFieldName: attachment_id
+                indexFieldType: STRING
+                dataSourceFieldName: id
+                dateFieldFormat: yyyy-MM-dd'T'HH:mm:ss'Z'
+          channelPost:
+            fieldMappings:
+              - indexFieldName: post_id
+                indexFieldType: STRING
+                dataSourceFieldName: id
+                dateFieldFormat: yyyy-MM-dd'T'HH:mm:ss'Z'
+          channelWiki:
+            fieldMappings:
+              - indexFieldName: wiki_id
+                indexFieldType: STRING
+                dataSourceFieldName: id
+                dateFieldFormat: yyyy-MM-dd'T'HH:mm:ss'Z'
+          channelAttachment:
+            fieldMappings:
+              - indexFieldName: attachment_id
+                indexFieldType: STRING
+                dataSourceFieldName: id
+                dateFieldFormat: yyyy-MM-dd'T'HH:mm:ss'Z'
+          meetingChat:
+            fieldMappings:
+              - indexFieldName: meeting_chat_id
+                indexFieldType: STRING
+                dataSourceFieldName: id
+                dateFieldFormat: yyyy-MM-dd'T'HH:mm:ss'Z'
+          meetingFile:
+            fieldMappings:
+              - indexFieldName: meeting_file_id
+                indexFieldType: STRING
+                dataSourceFieldName: id
+                dateFieldFormat: yyyy-MM-dd'T'HH:mm:ss'Z'
+          meetingNote:
+            fieldMappings:
+              - indexFieldName: meeting_note_id
+                indexFieldType: STRING
+                dataSourceFieldName: id
+                dateFieldFormat: yyyy-MM-dd'T'HH:mm:ss'Z'
+          calendarMeeting:
+            fieldMappings:
+              - indexFieldName: calendar_meeting_id
+                indexFieldType: STRING
+                dataSourceFieldName: id
+                dateFieldFormat: yyyy-MM-dd'T'HH:mm:ss'Z'
+        additionalProperties:
+          isCrawlAcl: "true"
+          maxFileSizeInMegaBytes: "50"
+          fieldForUserId: user_id
+          paymentModel: A
+          inclusionTeamNameFilter:
+            - TeamA
+            - TeamB
+          exclusionTeamNameFilter:
+            - TeamC
+          inclusionChannelNameFilter:
+            - Channel1
+            - Channel2
+          exclusionChannelNameFilter:
+            - Channel3
+          inclusionFileNamePatterns:
+            - "*.docx"
+            - "*.pdf"
+          exclusionFileNamePatterns:
+            - "*.tmp"
+          inclusionFileTypePatterns:
+            - image/png
+            - image/jpeg
+          exclusionFileTypePatterns:
+            - application/octet-stream
+          inclusionUserEmailFilter:
+            - user@example.com
+          isCrawlChatMessage: "true"
+          isCrawlChatAttachment: "true"
+          isCrawlChannelPost: "true"
+          isCrawlChannelAttachment: "true"
+          isCrawlChannelWiki: "true"
+          isCrawlCalendarMeeting: "true"
+          isCrawlMeetingChat: "true"
+          isCrawlMeetingFile: "true"
+          isCrawlMeetingNote: "true"
+          startCalendarDateTime: "2023-01-01T00:00:00Z"
+          endCalendarDateTime: "2023-12-31T23:59:59Z"
+          enableDeletionProtection: "false"
+          deletionProtectionThreshold: "15"

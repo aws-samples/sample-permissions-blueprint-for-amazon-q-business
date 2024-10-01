@@ -1,0 +1,49 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: CloudFormation SLACK Data Source Template
+Resources:
+  DataSourceSlack:
+    Type: AWS::QBusiness::DataSource
+    Properties:
+      ApplicationId: app12345-1234-1234-1234-123456789012
+      IndexId: indx1234-1234-1234-1234-123456789012
+      DisplayName: MySlackDataSource
+      RoleArn: arn:aws:iam::123456789012:role/qbusiness-data-source-role
+      Configuration:
+        type: SLACK
+        syncMode: FULL_CRAWL
+        secretArn: arn:aws:secretsmanager:us-west-2:123456789012:secret:my-slack-secret
+        enableIdentityCrawler: "true"
+        connectionConfiguration:
+          repositoryEndpointMetadata:
+            teamId: T12345678
+        repositoryConfigurations:
+          All:
+            fieldMappings:
+              - indexFieldName: message_id
+                indexFieldType: STRING
+                dataSourceFieldName: id
+                dateFieldFormat: yyyy-MM-dd'T'HH:mm:ss'Z'
+        additionalProperties:
+          isCrawlAcl: "true"
+          maxFileSizeInMegaBytes: "50"
+          fieldForUserId: user_id
+          exclusionPatterns:
+            - "*.tmp"
+          inclusionPatterns:
+            - "*"
+          crawlBotMessages: "false"
+          excludeArchived: "true"
+          conversationType:
+            - PUBLIC_CHANNEL
+            - PRIVATE_CHANNEL
+          channelFilter:
+            private_channel:
+              - C12345678
+            public_channel:
+              - C87654321
+          channelIdFilter:
+            - C12345678
+          sinceDate: "2023-01-01T00:00:00Z"
+          lookBack: "7"
+          enableDeletionProtection: "false"
+          deletionProtectionThreshold: "15"
