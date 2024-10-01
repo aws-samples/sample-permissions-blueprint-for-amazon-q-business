@@ -44,3 +44,17 @@ To use this CloudFormation template, follow these steps:
 5. During the final step of creating a Q Business application, assign the "qbusinessWebRole" to the web experience.
 
 By leveraging this CloudFormation template, you can quickly set up the essential roles needed to manage and operate your Amazon Q Business applications, saving time and effort in the process.
+
+## Customizing Roles for Data Connectors
+
+The "qbusinessDatasourceRole" created by this CloudFormation template provides a starting point for granting permissions to data sources in Amazon Q Business applications. However, different data connectors may require specific permissions to function correctly. This repository includes example CloudFormation YAML files for several popular data connectors, such as S3, Web Crawler, Confluence, SharePoint, Slack, Jira, Google Drive, GitHub, MS Teams, and ServiceNow.
+
+To customize the "qbusinessDatasourceRole" for a specific data connector:
+
+1. Identify the data connector you plan to use in your Amazon Q Business application.
+2. Locate the corresponding example CloudFormation YAML file in this repository.
+3. Replace the placeholders as needed from the example file you chose (ApplicationId, IndexId, RoleARN, AccountId, etc.)
+4. If necessary, update the "qbusinessDatasourceRole" in the main template to include the specific permissions required by the data connector.
+5. Test the updated "qbusinessDatasourceRole" with your data connector in a non-production environment to ensure it functions as expected.
+
+By following these steps, you can tailor the "qbusinessDatasourceRole" to accommodate the specific requirements of your chosen data connectors, ensuring smooth integration and operation within your Amazon Q Business applications.
