@@ -2,21 +2,18 @@
 # SPDX-License-Identifier: MIT-0
 
 Description: >
-    Creates a blueprint role for Q Business admin
-    - custom policy for q business admin role
-    - q business web experience Role
-    - q business data source role
-
+    Creates a sample application with a S3 Bucket as a data source. It includes the necessary roles for admin and qbusiness resources
+    
 Parameters:
     IdcInstanceArn:
       Type: String
       Description: "ARN of the Identity Center (IDC) Instance"    
-      Default: "arn:aws:sso:::instance/ssoins-722328f45fddba12"
+      Default: "arn:aws:sso:::instance/ssoins-1111111111111111"
     
-    S3BucketArn:
+    S3BucketName:
       Type: String
-      Description: "ARN of the S3 Bucket"
-      Default: "arn:aws:s3:::gmnov1-2024"
+      Description: "S3 Bucket to be used as a datasource"
+      Default: "yourbucket"
     
     BlueprintRoleName:
         Type: String
@@ -235,7 +232,7 @@ Resources:
                       Action:
                         - "s3:GetObject"
                       Resource:
-                        - "arn:aws:s3:::*"
+                        - !Sub "arn:aws:s3:::${S3BucketName}/*"
                       Condition:
                         StringEquals:
                           "aws:ResourceAccount": !Sub "${AWS::AccountId}"
@@ -245,7 +242,7 @@ Resources:
                       Action:
                         - "s3:ListBucket"
                       Resource:
-                        - "arn:aws:s3:::*"
+                        - !Sub "arn:aws:s3:::${S3BucketName}"
                       Condition:
                         StringEquals:
                           "aws:ResourceAccount": !Sub "${AWS::AccountId}"
@@ -457,6 +454,25 @@ Resources:
                   Condition:
                     StringEqualsIgnoreCase:
                       'qapps:SessionIsShared': 'true'
+    DataSourceS3:
+        Type: "AWS::QBusiness::DataSource"
+        Properties:
+          ApplicationId: !Ref QBusinessApp
+          IndexId: !GetAtt QBusinessIndex.IndexId
+          DisplayName: MyS3DataSource
+          RoleArn: !GetAtt 'QBizDataSourceRole.Arn'
+          Configuration:
+            type: S3
+            syncMode: FULL_CRAWL
+            connectionConfiguration:
+              repositoryEndpointMetadata:
+                BucketName: !Sub "${S3BucketName}"
+            repositoryConfigurations:
+              document:
+                fieldMappings:
+                  - dataSourceFieldName: content
+                    indexFieldName: document_content
+                    indexFieldType: STRING
 Outputs:
     BlueprintRoleARN:
         Value: !GetAtt 'BlueprintRole.Arn'
